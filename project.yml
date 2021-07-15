@@ -1,4 +1,4 @@
-name: SampleApp
+name: SwiftUI-DevRecipes
 options:
   xcodeVersion: "12.0"
   deploymentTarget:
@@ -11,7 +11,7 @@ settings:
     SWIFT_VERSION: 5.0
 
 targets:
-  SampleApp:
+  Drawing:
     type: application
     platform: iOS
     settings:
@@ -21,22 +21,52 @@ targets:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         ENABLE_PREVIEWS: true
-        DEVELOPMENT_ASSET_PATHS: "\"Sources/Resources/Preview Content\""
+        DEVELOPMENT_ASSET_PATHS: "\"Drawing/Resources/Preview Content\""
     sources:
-      - path: Sources
-    # dependencies:
-    #   - carthage: XXX
+      - path: Drawing
     postCompileScripts:
       - name: Run SwiftFormat
         script: ./scripts/swiftformat.sh
       - name: Run SwiftLint
         script: ./scripts/swiftlint.sh
+  PhotoFilter:
+    type: application
+    platform: iOS
+    settings:
+      base:
+        PRODUCT_NAME: $TARGET_NAME
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.${PRODUCT_NAME}
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        ENABLE_PREVIEWS: true
+        DEVELOPMENT_ASSET_PATHS: "\"PhotoFilter/Resources/Preview Content\""
+    sources:
+      - path: PhotoFilter
+    postCompileScripts:
+      - name: Run SwiftFormat
+        script: ./scripts/swiftformat.sh
+      - name: Run SwiftLint
+        script: ./scripts/swiftlint.sh        
 
 schemes:
-  SampleApp:
+  Drawing:
     build:
       targets:
-        SampleApp: all
+        Drawing: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile: 
+      config: Debug
+    analyze:
+      config: Debug
+    archive: 
+      config: Debug
+  PhotoFilter:
+    build:
+      targets:
+        Drawing: all
     run:
       config: Debug
     test:
