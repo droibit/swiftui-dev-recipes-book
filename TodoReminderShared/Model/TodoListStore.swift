@@ -1,15 +1,12 @@
 import CoreData
 import Foundation
 
-import Foundation
-import CoreData
-
 struct TodoListItem: Identifiable {
     var startDate: Date
     var note: String
     var priority: TodoPriority
     var title: String
-    var id: UUID = UUID()
+    var id = UUID()
 }
 
 enum CoreDataStoreError: Error {
@@ -18,17 +15,17 @@ enum CoreDataStoreError: Error {
 
 enum TodoPriority: Int {
     case low = 0
-    case medium
-    case high
+    case medium = 1
+    case high = 2
 
     var name: String {
         switch self {
-            case .high:
-                return "高"
-            case .medium:
-                return "中"
-            case .low:
-                return "低"
+        case .high:
+            return "高"
+        case .medium:
+            return "中"
+        case .low:
+            return "低"
         }
     }
 }
@@ -42,18 +39,19 @@ extension TodoList {
               let id = id else { return nil }
         return TodoListItem(
             startDate: startDate,
-                            note: note,
-                            priority: priority,
-                            title: title,
-                            id: id
+            note: note,
+            priority: priority,
+            title: title,
+            id: id
         )
     }
 }
 
 final class TodoListStore {
     typealias Entity = TodoList
-    static var containerName: String = "Todo"
-    static var entityName: String = "TodoList"
+
+    static let containerName: String = "Todo"
+    static let entityName: String = "TodoList"
 
     func insert(item: TodoListItem) throws {
         let newItem = NSEntityDescription.insertNewObject(forEntityName: TodoListStore.entityName, into: persistentContainer.viewContext) as? Entity
@@ -73,7 +71,7 @@ final class TodoListStore {
             }
             let todoList = result.compactMap { $0.convert() }
             return todoList
-        } catch let error {
+        } catch {
             throw error
         }
     }
@@ -87,7 +85,7 @@ final class TodoListStore {
             }
             let todoList = result.compactMap { $0.convert() }
             return todoList
-        } catch let error {
+        } catch {
             throw error
         }
     }
@@ -104,7 +102,7 @@ final class TodoListStore {
                 throw CoreDataStoreError.failureFetch
             }
             return todo
-        } catch let error {
+        } catch {
             throw error
         }
     }
@@ -113,7 +111,7 @@ final class TodoListStore {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: TodoListStore.entityName)
         fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             makeTodayItemsPredicate(),
-            NSPredicate(format: "priority == %d", priorityValue)
+            NSPredicate(format: "priority == %d", priorityValue),
         ])
         do {
             guard let result = try persistentContainer.viewContext.fetch(fetchRequest) as? [Entity] else {
@@ -121,7 +119,7 @@ final class TodoListStore {
             }
             let todoList = result.compactMap { $0.convert() }
             return todoList
-        } catch let error {
+        } catch {
             throw error
         }
     }
@@ -143,11 +141,15 @@ final class TodoListStore {
     }
 
     // MARK: - private
+
     // https://stackoverflow.com/questions/41684256/accessing-core-data-from-both-container-app-and-extension
     private lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: TodoListStore.containerName)
-        container.persistentStoreDescriptions = [NSPersistentStoreDescription(url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.example.TodoReminder")!.appendingPathComponent("\(TodoListStore.containerName).sqlite"))]
-        container.loadPersistentStores(completionHandler: { (description, error) in
+        container
+            .persistentStoreDescriptions =
+            [NSPersistentStoreDescription(url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.github.droibit.example.TodoReminder")!
+                    .appendingPathComponent("\(TodoListStore.containerName).sqlite"))]
+        container.loadPersistentStores(completionHandler: { _, error in
             if let error = error as NSError? {
                 print("Unresolved error \(error), \(error.userInfo)")
             }
